@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b1612" />
+  <title>รอยจารึกธารทองแดง 3D — โคลงประพาสธารทองแดง</title>
+  <link rel="icon" type="image/png" href="./images/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+  <script async src="https://ga.jspm.io/npm:es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- Painted Thai Backdrop -->
+  <div id="backdrop-layer"></div>
+
+  <!-- Transparent 3D Stage (เจ้าฟ้าธรรมธิเบศร.glb) -->
+  <div id="canvas-container"></div>
+
+  <!-- Top-Left Hamburger + Connected Game Logo Button -->
+  <button type="button" id="menu-toggle-btn" class="hamburger-btn" aria-label="เปิดเมนู">
+    <span class="hamburger-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <line x1="4" y1="6" x2="20" y2="6"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="18" x2="20" y2="18"/>
+      </svg>
+    </span>
+    <span class="hamburger-divider"></span>
+    <img src="./images/logo.png" alt="โคลงประพาสธารทองแดง" class="hamburger-logo" />
+  </button>
+
+  <!-- Left Collapsible HUD Drawer -->
+  <div id="drawer-backdrop" class="drawer-backdrop"></div>
+  <aside id="side-drawer" class="side-drawer">
+    <div class="drawer-header">
+      <div class="hud-brand">
+        <span id="hud-chapter-title"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>รอยจารึกธารทองแดง</span>
+        <small id="hud-chapter-sub">โคลงประพาสธารทองแดง • วรรณคดี ม.๒</small>
+      </div>
+      <button type="button" id="drawer-close-btn" class="btn-icon" aria-label="ปิดเมนู">
+        <svg class="svg-icon" style="margin:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-label">สถานะการเดินทาง</div>
+      <div class="drawer-stats">
+        <div class="pill-stat"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>คะแนนวรรณศิลป์: <span id="hud-score">0</span></div>
+        <div class="pill-stat"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>ความรื่นรมย์: <span id="hud-harmony">100</span></div>
+      </div>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-label">เมนูสมุดไทย</div>
+      <div class="drawer-actions">
+        <button type="button" class="drawer-item-btn" id="open-bestiary-btn"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>สมุดข่อยศัพท์ (<span id="hud-bestiary-count">0/7</span>)</button>
+        <button type="button" class="drawer-item-btn" id="chapter-select-btn"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>เลือกบท</button>
+        <button type="button" class="drawer-item-btn" id="btn-audio"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>เสียง: เปิด</button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="drag-hint" class="hidden">ลากเพื่อหมุนชมโมเดล 3 มิติ</div>
+
+  <!-- Title Screen -->
+  <section id="title-screen">
+    <div class="title-card">
+      <!-- Top Royal Thai Crest -->
+      <div class="title-crest">
+        <svg viewBox="0 0 120 36" fill="none">
+          <defs>
+            <linearGradient id="titleGoldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#fff5ba"/>
+              <stop offset="50%" stop-color="#d4af37"/>
+              <stop offset="100%" stop-color="#8a6200"/>
+            </linearGradient>
+          </defs>
+          <path d="M60 2 L70 18 L60 34 L50 18 Z" fill="url(#titleGoldGrad)" stroke="#4a3200" stroke-width="1"/>
+          <path d="M46 18 C34 10, 20 12, 6 18 C20 24, 34 26, 46 18 Z" fill="url(#titleGoldGrad)" opacity="0.9"/>
+          <path d="M74 18 C86 10, 100 12, 114 18 C100 24, 86 26, 74 18 Z" fill="url(#titleGoldGrad)" opacity="0.9"/>
+          <circle cx="60" cy="18" r="3.5" fill="#10211a" stroke="#fff5ba" stroke-width="1.2"/>
+        </svg>
+      </div>
+
+      <!-- 4 Thai Kanok Golden Corners -->
+      <svg class="kanok-corner tl" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#titleGoldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+      <svg class="kanok-corner tr" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#titleGoldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+      <svg class="kanok-corner bl" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#titleGoldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+      <svg class="kanok-corner br" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#titleGoldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+
+      <div class="chapter-badge">วิชวลโนเวล 3 มิติ • ครบทั้ง ๔ บท</div>
+      <img src="./images/logo.png" alt="โคลงประพาสธารทองแดง" class="game-logo" />
+      <h1 class="game-title sr-only">โคลงประพาสธารทองแดง</h1>
+
+      <div class="title-divider">
+        <span></span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="#f3d97d"><path d="M8 1 L15 8 L8 15 L1 8 Z"/></svg>
+        <span></span>
+      </div>
+
+      <p class="game-subtitle">
+        ร่วมเดินทางในขบวนเสด็จจาก <strong>ท่าเจ้าสนุก</strong> สู่ <strong>ธารทองแดง</strong><br />
+        ไขปริศนาและจับคู่ <em>กาพย์ยานี ๑๑</em> กับ <em>โคลงสี่สุภาพ</em> เพื่อกอบกู้สมุดไทยขาวที่กำลังเลือนหาย
+      </p>
+      <div class="title-actions">
+        <button type="button" class="btn-primary btn-shine" id="start-btn"><svg class="svg-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>เริ่มการเดินทาง</button>
+        <button type="button" class="btn-secondary" id="btn-title-journal"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>เปิดสมุดข่อยคลังศัพท์</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Visual Novel Dialogue Box (Ornate Thai Kanok & Silk Frame) -->
+  <div id="vn-dialogue-box" class="hidden" role="button" tabindex="0">
+    <!-- Ornate Speaker Nameplate overlapping top-left -->
+    <div class="vn-nameplate">
+      <svg class="nameplate-orn left" viewBox="0 0 28 32" fill="none">
+        <path d="M26 4 C16 4, 8 10, 2 16 C8 22, 16 28, 26 28 C20 22, 18 19, 14 16 C18 13, 20 10, 26 4 Z" fill="url(#goldGrad)" stroke="#5c4200" stroke-width="1"/>
+      </svg>
+      <span id="vn-speaker" class="vn-speaker-text">เจ้าฟ้าธรรมธิเบศร (เจ้าฟ้ากุ้ง)</span>
+      <svg class="nameplate-orn right" viewBox="0 0 28 32" fill="none">
+        <path d="M2 4 C12 4, 20 10, 26 16 C20 22, 12 28, 2 28 C8 22, 10 19, 14 16 C10 13, 8 10, 2 4 Z" fill="url(#goldGrad)" stroke="#5c4200" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <!-- Draped Emerald Silk Ribbon along top -->
+    <svg class="vn-silk-ribbon" viewBox="0 0 600 44" preserveAspectRatio="none" fill="none">
+      <defs>
+        <linearGradient id="silkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#0b4f4a"/>
+          <stop offset="28%" stop-color="#19877d"/>
+          <stop offset="52%" stop-color="#0a3d39"/>
+          <stop offset="76%" stop-color="#1da195"/>
+          <stop offset="100%" stop-color="#083834"/>
+        </linearGradient>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#fff0a8"/>
+          <stop offset="45%" stop-color="#d4af37"/>
+          <stop offset="100%" stop-color="#8a6600"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 10 Q145 38 295 14 Q435 36 588 8 L588 18 Q435 46 295 24 Q145 48 12 20 Z" fill="url(#silkGrad)" opacity="0.95"/>
+      <path d="M12 10 Q145 38 295 14 Q435 36 588 8" stroke="#f3d97d" stroke-width="1.2" opacity="0.65"/>
+      <path d="M12 20 Q145 48 295 24 Q435 46 588 18" stroke="#041c1a" stroke-width="1.5" opacity="0.7"/>
+    </svg>
+
+    <!-- 4 Thai Kanok Golden Corner Ornaments -->
+    <svg class="kanok-corner tl" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#goldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+    <svg class="kanok-corner tr" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#goldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+    <svg class="kanok-corner bl" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#goldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+    <svg class="kanok-corner br" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#goldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+
+    <div class="vn-inner">
+      <div id="vn-text" class="vn-text"></div>
+      <div class="vn-hint-row">
+        <svg class="vn-wheel" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="11" stroke="#f3d97d" stroke-width="2"/>
+          <circle cx="16" cy="16" r="3.5" fill="#d4af37"/>
+          <path d="M16 2 V30 M2 16 H30 M6 6 L26 26 M26 6 L6 26" stroke="#d4af37" stroke-width="1.6"/>
+        </svg>
+        <span id="vn-hint" class="vn-hint">แตะเพื่ออ่านต่อ</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- Animated SVG Cutscene & Samut Thai Ink-Restoration Overlay -->
+  <div id="cutscene-overlay" class="cutscene-overlay hidden">
+    <div class="samut-book">
+      <!-- 4 Thai Kanok Golden Corners -->
+      <svg class="kanok-corner tl" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#goldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+      <svg class="kanok-corner tr" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#goldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+      <svg class="kanok-corner bl" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#goldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+      <svg class="kanok-corner br" viewBox="0 0 64 64" fill="none"><path d="M4 60 L4 4 L60 4 C44 10, 32 16, 24 24 C16 32, 10 44, 4 60 Z M12 44 C16 28, 28 16, 44 12 C32 20, 20 32, 12 44 Z" fill="url(#goldGrad)" stroke="#4a3500" stroke-width="1.2"/></svg>
+
+      <div class="samut-header">
+        <span class="samut-badge" id="cutscene-badge">หมึกแห่งความทรงจำกลับคืนสู่สมุดไทยขาว</span>
+        <h2 id="cutscene-title" class="samut-title">บันทึกกลับคืนสมบูรณ์</h2>
+      </div>
+
+      <div class="samut-spread">
+        <!-- Left Page: Animated SVG Stroke-Draw Art -->
+        <div class="samut-page samut-art-page">
+          <div id="cutscene-svg-stage" class="cutscene-svg-stage"></div>
+          <div id="cutscene-art-caption" class="samut-caption"></div>
+        </div>
+
+        <!-- Center Accordion Fold Crease -->
+        <div class="samut-crease"></div>
+
+        <!-- Right Page: Ink-Restoration Animated Verse -->
+        <div class="samut-page samut-verse-page">
+          <div class="ink-header">
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="#8a6200" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg>
+            <span>รอยจารึกกาพย์ห่อโคลงที่กลับคืน</span>
+          </div>
+          <div id="cutscene-ink-verse" class="ink-verse-container"></div>
+          <div id="cutscene-ink-note" class="ink-note"></div>
+        </div>
+      </div>
+
+      <div class="samut-footer">
+        <button type="button" id="cutscene-continue-btn" class="btn-primary btn-shine">
+          <svg class="svg-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          ดำเนินการต่อ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Puzzle / Moral Choice / Victory Modal -->
+  <div id="task-modal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="task-modal-title">ภารกิจ</h3>
+        <button type="button" id="task-modal-close" class="btn-icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ปิด</button>
+      </div>
+      <div id="task-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Samut Khoi Glossary & Bestiary Modal -->
+  <div id="bestiary-modal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>สมุดข่อยคลังศัพท์ &amp; สารานุกรมธรรมชาติ</h3>
+        <button type="button" id="bestiary-close" class="btn-icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ปิด</button>
+      </div>
+      <div id="bestiary-grid" class="bestiary-grid"></div>
+    </div>
+  </div>
+
+  <!-- Chapter Selector Modal -->
+  <div id="chapter-modal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>แผนที่เส้นทางเสด็จพระพุทธบาท</h3>
+        <button type="button" id="chapter-close" class="btn-icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>ปิด</button>
+      </div>
+      <div id="chapter-list" class="option-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# Dependencies & OS
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Large unoptimized source assets & reference files (optimized versions live in models/ and images/)
+เจ้าฟ้าธรรมธิเบศร.glb
+เทียน.glb
+พื้นหลัง.png
+code_artifact (2).html
+โคลงประพาสธารทองแดง.pdf

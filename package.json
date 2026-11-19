@@ -1,0 +1,9 @@
+{
+  "name": "klong-praphat-than-thong-daeng-3d",
+  "version": "1.0.0",
+  "description": "เกมวิชวลโนเวล 3D เพื่อการเรียนรู้วรรณคดีไทย โคลงประพาสธารทองแดง",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT"
+}
